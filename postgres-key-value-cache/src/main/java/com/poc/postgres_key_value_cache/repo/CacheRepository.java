@@ -98,14 +98,15 @@ public class CacheRepository {
     }
 
     // Select expiring keys for refresh
-    public List<String> selectRefreshCandidateKeys(int limit) {
+    public List<String> selectRefreshCandidateKeys(int limit, int retentionDays) {
         String sql = """
                 SELECT key FROM cache_entries 
                 WHERE expires_at <= now() 
+                AND last_accessed_at >= now() - make_interval(days => ?)
                 AND (is_refreshing = false OR refresh_started_at < now() - interval '5 minutes')
                 ORDER BY expires_at ASC LIMIT ?
                 """;
-        return jdbc.queryForList(sql, String.class, limit);
+        return jdbc.queryForList(sql, String.class, retentionDays, limit);
     }
 
     // LRU cleanup

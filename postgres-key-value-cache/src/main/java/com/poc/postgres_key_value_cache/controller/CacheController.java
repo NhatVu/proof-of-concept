@@ -5,7 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.poc.postgres_key_value_cache.service.CacheService;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -16,12 +16,14 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/cache")
 @AllArgsConstructor
+@Slf4j
 public class CacheController {
     private final CacheService cacheService;
     private final ObjectMapper objectMapper;
 
     @GetMapping
     public Map<String, String> getValue(@RequestParam String key) throws JsonProcessingException {
+        log.info("Running Controller on thread: " + Thread.currentThread().getName());
         String value = cacheService.getValueForKey(key);
         Map<String, String> res = objectMapper.readValue(value, new TypeReference<Map<String, String>>() {});
         return res;
